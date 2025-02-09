@@ -1,0 +1,27 @@
+{
+  "name": "chaindns",
+  "version": "1.0.0",
+  "description": "Decentralized domain name resolution system on blockchain",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "hardhat test",
+    "deploy": "hardhat run scripts/deploy.js"
+  },
+  "keywords": ["blockchain", "dns", "web3", "ethereum", "solidity"],
+  "author": "SterlingWill",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "web3": "^1.8.0",
+    "ethers": "^5.7.0"
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.0",
+    "@nomiclabs/hardhat-waffle": "^2.0.0",
+    "hardhat": "^2.12.0",
+    "react-scripts": "5.0.1"
+  }
+}
