@@ -53,3 +53,46 @@ button {
 button:hover {
   background-color: #45a049;
 }
+
+.tab-nav {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+  gap: 10px;
+}
+
+.tab-nav button {
+  background-color: #ddd;
+  color: #333;
+}
+
+.tab-nav button.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.domain-manager {
+  background: #f5f5f5;
+  padding: 30px;
+  border-radius: 8px;
+}
+
+.domains-list {
+  margin-bottom: 30px;
+}
+
+.domain-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: white;
+  margin: 10px 0;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.transfer-section h3 {
+  margin-bottom: 15px;
+  color: #333;
+}

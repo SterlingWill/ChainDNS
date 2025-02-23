@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { initWeb3, initContract, web3, chainDNSContract } from './web3';
+import DomainManager from './DomainManager';
 
 function App() {
   const [domain, setDomain] = useState('');
@@ -8,6 +9,7 @@ function App() {
   const [account, setAccount] = useState('');
   const [contract, setContract] = useState(null);
   const [resolveResult, setResolveResult] = useState('');
+  const [currentTab, setCurrentTab] = useState('register');
 
   useEffect(() => {
     const initApp = async () => {
@@ -64,35 +66,58 @@ function App() {
         {account && <p>Connected: {account.substring(0, 6)}...{account.substring(38)}</p>}
       </header>
 
-      <main>
-        <div className="form-section">
-          <h2>Register Domain</h2>
-          <input
-            type="text"
-            placeholder="Enter domain name"
-            value={domain}
-            onChange={(e) => setDomain(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Enter IP address"
-            value={ipAddress}
-            onChange={(e) => setIpAddress(e.target.value)}
-          />
-          <button onClick={handleRegister}>Register Domain</button>
-        </div>
+      <nav className="tab-nav">
+        <button
+          className={currentTab === 'register' ? 'active' : ''}
+          onClick={() => setCurrentTab('register')}
+        >
+          Register/Resolve
+        </button>
+        <button
+          className={currentTab === 'manage' ? 'active' : ''}
+          onClick={() => setCurrentTab('manage')}
+        >
+          Manage Domains
+        </button>
+      </nav>
 
-        <div className="form-section">
-          <h2>Resolve Domain</h2>
-          <input
-            type="text"
-            placeholder="Enter domain to resolve"
-            value={domain}
-            onChange={(e) => setDomain(e.target.value)}
-          />
-          <button onClick={handleResolve}>Resolve</button>
-          {resolveResult && <p>Result: {resolveResult}</p>}
-        </div>
+      <main>
+        {currentTab === 'register' && (
+          <>
+            <div className="form-section">
+              <h2>Register Domain</h2>
+              <input
+                type="text"
+                placeholder="Enter domain name"
+                value={domain}
+                onChange={(e) => setDomain(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Enter IP address"
+                value={ipAddress}
+                onChange={(e) => setIpAddress(e.target.value)}
+              />
+              <button onClick={handleRegister}>Register Domain</button>
+            </div>
+
+            <div className="form-section">
+              <h2>Resolve Domain</h2>
+              <input
+                type="text"
+                placeholder="Enter domain to resolve"
+                value={domain}
+                onChange={(e) => setDomain(e.target.value)}
+              />
+              <button onClick={handleResolve}>Resolve</button>
+              {resolveResult && <p>Result: {resolveResult}</p>}
+            </div>
+          </>
+        )}
+
+        {currentTab === 'manage' && (
+          <DomainManager account={account} contract={contract} />
+        )}
       </main>
     </div>
   );
