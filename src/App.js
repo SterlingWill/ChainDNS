@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import { initWeb3, initContract, web3, chainDNSContract } from './web3';
 import DomainManager from './DomainManager';
+import { validateDomain, validateIPAddress } from './utils/validation';
 
 function App() {
   const [domain, setDomain] = useState('');
@@ -10,6 +11,8 @@ function App() {
   const [contract, setContract] = useState(null);
   const [resolveResult, setResolveResult] = useState('');
   const [currentTab, setCurrentTab] = useState('register');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const initApp = async () => {
@@ -27,34 +30,67 @@ function App() {
   }, []);
 
   const handleRegister = async () => {
-    if (!contract || !account) {
-      alert('Please connect your wallet first');
+    setError('');
+
+    // Validate inputs
+    const domainValidation = validateDomain(domain);
+    if (!domainValidation.isValid) {
+      setError(domainValidation.error);
       return;
     }
 
+    const ipValidation = validateIPAddress(ipAddress);
+    if (!ipValidation.isValid) {
+      setError(ipValidation.error);
+      return;
+    }
+
+    if (!contract || !account) {
+      setError('Please connect your wallet first');
+      return;
+    }
+
+    setLoading(true);
     try {
       await contract.methods.registerDomain(domain, ipAddress).send({
         from: account
       });
       alert('Domain registered successfully!');
+      setDomain('');
+      setIpAddress('');
     } catch (error) {
       console.error('Error registering domain:', error);
-      alert('Failed to register domain');
+      setError('Failed to register domain. It may already exist or you may not have enough gas.');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleResolve = async () => {
-    if (!contract) {
-      alert('Please connect your wallet first');
+    setError('');
+    setResolveResult('');
+
+    // Validate domain
+    const domainValidation = validateDomain(domain);
+    if (!domainValidation.isValid) {
+      setError(domainValidation.error);
       return;
     }
 
+    if (!contract) {
+      setError('Please connect your wallet first');
+      return;
+    }
+
+    setLoading(true);
     try {
       const result = await contract.methods.resolveDomain(domain).call();
       setResolveResult(result);
     } catch (error) {
       console.error('Error resolving domain:', error);
-      alert('Domain not found or expired');
+      setError('Domain not found or expired');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -82,6 +118,8 @@ function App() {
       </nav>
 
       <main>
+        {error && <div className="error-message">{error}</div>}
+
         {currentTab === 'register' && (
           <>
             <div className="form-section">
@@ -91,14 +129,21 @@ function App() {
                 placeholder="Enter domain name"
                 value={domain}
                 onChange={(e) => setDomain(e.target.value)}
+                className={error && error.includes('Domain') ? 'error-input' : ''}
               />
               <input
                 type="text"
                 placeholder="Enter IP address"
                 value={ipAddress}
                 onChange={(e) => setIpAddress(e.target.value)}
+                className={error && error.includes('IP') ? 'error-input' : ''}
               />
-              <button onClick={handleRegister}>Register Domain</button>
+              <button
+                onClick={handleRegister}
+                disabled={loading}
+              >
+                {loading ? 'Registering...' : 'Register Domain'}
+              </button>
             </div>
 
             <div className="form-section">
@@ -108,9 +153,15 @@ function App() {
                 placeholder="Enter domain to resolve"
                 value={domain}
                 onChange={(e) => setDomain(e.target.value)}
+                className={error && error.includes('Domain') ? 'error-input' : ''}
               />
-              <button onClick={handleResolve}>Resolve</button>
-              {resolveResult && <p>Result: {resolveResult}</p>}
+              <button
+                onClick={handleResolve}
+                disabled={loading}
+              >
+                {loading ? 'Resolving...' : 'Resolve'}
+              </button>
+              {resolveResult && <div className="success-message">Result: {resolveResult}</div>}
             </div>
           </>
         )}
